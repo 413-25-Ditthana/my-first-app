@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.titel("My digital profile✨")
+st.title("My digital profile✨")
 
 st.header("แนะนำตัว🎇")
 st.write("นาย ดิฐธนา สุระธนาจิต")

@@ -1,5 +1,5 @@
 import time
-impot streamlit as st
+import streamlit as st
 
 st.title("เกมเติมคำศัพท์จับเวลา")
 

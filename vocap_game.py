@@ -1,17 +1,30 @@
+พบจุดผิดพลาดหลายแห่งในโค้ดที่เป็นสาเหตุของ `NameError` รวมถึงบั๊กการตรวจคะแนนครับ ดังนี้:
+
+* **ลำดับการประกาศตัวแปรผิด:** บรรทัด `st.session_state.ans3_val = ans3` และ `ans4` ถูกเรียกใช้ **ก่อน** บรรทัดที่รับค่า `ans3` และ `ans4` จากผู้ใช้
+* **การตั้งชื่อตัวแปรซ้ำ:** ข้อ 3 และ 4 ถูกรับค่าใส่ตัวแปร `ans2` ซ้ำกันทั้งหมด
+* **การตรวจเงื่อนไขผิด:** ในฟังก์ชัน `show_result_dialog` ข้อ 3 และ 4 ใช้ตัวแปร `if u_ans2 == ...` ตรวจสอบแทนที่จะเป็น `u_ans3` และ `u_ans4`
+* **ตั้งค่าเริ่มต้นผิด:** บล็อก `if "ans3_val"...` ไปเขียนทับ `ans1_val` แทน
+* **ส่งอาร์กิวเมนต์ไม่ครบ:** ตอนเรียกใช้ `show_result_dialog(ans1, ans2)` ส่งค่าไปแค่ 2 ตัวแปร แต่ฟังก์ชันต้องการ 4 ตัวแปร
+
+---
+
+### โค้ดที่แก้ไขสมบูรณ์แล้ว
+
+```python
 import time
 import streamlit as st
 
 st.title("⏱️ เกมเติมศัพท์จับเวลา")
 
-# 1. กำหนดค่าเริ่มต้นใน session_state ถ้ายังไม่มี
+# 1. กำหนดค่าเริ่มต้นใน session_state ถ้ายังไม่มี (แก้ไขการกำหนดค่า ans3_val และ ans4_val)
 if "ans1_val" not in st.session_state:
     st.session_state.ans1_val = ""
 if "ans2_val" not in st.session_state:
     st.session_state.ans2_val = ""
 if "ans3_val" not in st.session_state:
-    st.session_state.ans1_val = ""
+    st.session_state.ans3_val = ""
 if "ans4_val" not in st.session_state:
-    st.session_state.ans1_val = ""
+    st.session_state.ans4_val = ""
 
 
 # 📌 ฟังก์ชันเคลียร์ค่าเมื่อกดปุ่มเริ่มใหม่
@@ -51,14 +64,15 @@ def show_result_dialog(ans1, ans2, ans3, ans4):
     else:
         st.error(f"❌ ข้อ 2: ยังไม่ถูกต้อง (คุณตอบ '{u_ans2}')")
 
-    # ✏️ [พื้นที่สำหรับนักเรียน]: เพิ่มตรวจข้อ 3, 4 ตรงนี้
-    if u_ans2 == "book":
+    # ตรวจข้อ 3 (แก้ไขจาก u_ans2 เป็น u_ans3)
+    if u_ans3 == "book":
         st.success("✅ ข้อ 3: ถูกต้อง")
         score += 1
     else:
         st.error(f"❌ ข้อ 3: ยังไม่ถูกต้อง (คุณตอบ '{u_ans3}')")
 
-    if u_ans2 == "carrot":
+    # ตรวจข้อ 4 (แก้ไขจาก u_ans2 เป็น u_ans4)
+    if u_ans4 == "carrot":
         st.success("✅ ข้อ 4: ถูกต้อง")
         score += 1
     else:
@@ -89,7 +103,7 @@ if "start" in st.session_state and not st.session_state.get("is_ended", False):
 
 st.divider()
 
-# 3. ช่องรับคำตอบ (ใช้ value ผูกกับตัวแปรตรงๆ เพื่อสั่งเคลียร์ได้)
+# 3. ช่องรับคำตอบ (เรียงลำดับรับค่า ans1 - ans4 ให้ครบก่อนบันทึก session_state)
 ans1 = st.text_input(
     "ข้อ 1: An `a _ _ l e` a day keeps the doctor away. 🍎",
     value=st.session_state.ans1_val,
@@ -98,25 +112,20 @@ ans2 = st.text_input(
     "ข้อ 2: Cats love to eat `f _ s h`. 🐟",
     value=st.session_state.ans2_val,
 )
-
-# อัปเดตค่าล่าสุดเข้าตัวแปร
-st.session_state.ans1_val = ans1
-st.session_state.ans2_val = ans2
-
-# ✏️ [พื้นที่สำหรับนักเรียน]: เพิ่มข้อ 3, 4 ตรงนี้
-ans2 = st.text_input(
-    "ข้อ 2: we read a `B _ _ k`. 📕",
+ans3 = st.text_input(
+    "ข้อ 3: We read a `B _ _ k`. 📕",
     value=st.session_state.ans3_val,
 )
-
-ans2 = st.text_input(
-    "ข้อ 2: rabbit love to eat `C_ _ r _t`. 🥕",
+ans4 = st.text_input(
+    "ข้อ 4: Rabbit love to eat `C _ _ r _ t`. 🥕",
     value=st.session_state.ans4_val,
 )
 
+# อัปเดตค่าล่าสุดเข้าตัวแปร session_state
+st.session_state.ans1_val = ans1
+st.session_state.ans2_val = ans2
 st.session_state.ans3_val = ans3
 st.session_state.ans4_val = ans4
-
 
 # 4. ปุ่มส่งคำตอบ
 if "start" in st.session_state and not st.session_state.get("is_ended", False):
@@ -127,9 +136,11 @@ if "start" in st.session_state and not st.session_state.get("is_ended", False):
     time.sleep(1)
     st.rerun()
 
-# 5. แสดง Dialog ผลลัพธ์
+# 5. แสดง Dialog ผลลัพธ์ (แก้ไขส่งตัวแปรให้ครบทั้ง 4 ข้อ)
 if st.session_state.get("is_ended", False):
-    show_result_dialog(ans1, ans2)
+    show_result_dialog(ans1, ans2, ans3, ans4)
 
 st.divider()
 st.write("นาย ดิฐธนา สุระธนาจิต เลขที่ 25 ม.4/13")
+
+```

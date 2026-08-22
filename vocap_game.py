@@ -60,7 +60,7 @@ ans1 = st.text_input(
     value=st.session_state.ans1_val,
 )
 ans2 = st.text_input(
-   :ข้อ2: Cats love to eat 'f _ _ h'"
+   :ข้อ2: Cats love to eat 'f _ _ h'.",
 value-st.session_state.ans2_val,
 )
 

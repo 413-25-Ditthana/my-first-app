@@ -37,7 +37,7 @@ else:
 
 st.info(f" ได้คะแนนรวม: {score} คะแนน")
 
-if score == 2
+if score == 2:
    st.success(" you win!")
 else:
    st.error(" you lose!")
